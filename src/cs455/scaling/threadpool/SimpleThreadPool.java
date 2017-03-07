@@ -6,14 +6,14 @@ import java.util.LinkedList;
  * Created by eloza on 3/7/17.
  */
 public class SimpleThreadPool {
-    private WorkerThread[] threads;
+    private TaskThread[] threads;
     private LinkedList<Runnable> taskQueue;
 
     public SimpleThreadPool(int threadNumber) {
         taskQueue = new LinkedList<Runnable>();
-        threads = new WorkerThread[threadNumber];
+        threads = new TaskThread[threadNumber];
         for (int i = 0; i < threads.length; i++) {
-            threads[i] = new WorkerThread();
+            threads[i] = new TaskThread();
             threads[i].start();
         }
     }
@@ -25,7 +25,7 @@ public class SimpleThreadPool {
         }
     }
 
-    public class WorkerThread extends Thread {
+    public class TaskThread extends Thread {
         public void run() {
             Runnable r;
             while (true) {
