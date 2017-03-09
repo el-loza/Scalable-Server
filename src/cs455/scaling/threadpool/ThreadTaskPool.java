@@ -8,8 +8,8 @@ import java.util.ListIterator;
  */
 public class ThreadTaskPool {
 
-    private LinkedList<WorkerThread> workers;
-    private LinkedList<Runnable> tasks;
+    private final LinkedList<WorkerThread> workers;
+    private final LinkedList<Runnable> tasks;
 
     public ThreadTaskPool(int numOfThreads){
         tasks = new LinkedList<Runnable>();

@@ -26,32 +26,36 @@ public class Test2 {
     private static class TestTask1 implements Runnable {
         @Override
         public void run() {
-            System.out.println("Starting Thread");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Starting Thread\n");
             for (int i = 0; i < 5; i++) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("A");
+                sb.append("A\n");
             }
-            System.out.println("Ending Thread");
+            sb.append("Ending Thread");
+            System.out.println(sb.toString());
         }
     }
 
     private static class TestTask2 implements Runnable {
         @Override
         public void run() {
-            System.out.println("Starting Thread");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Starting Thread\n");
             for (int i = 0; i < 5; i++) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("B");
+                sb.append("B\n");
             }
-            System.out.println("Ending Thread");
+            sb.append("Ending Thread");
+            System.out.println(sb.toString());
         }
     }
 }

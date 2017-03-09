@@ -6,6 +6,7 @@ package cs455.scaling.threadpool;
 public class WorkerThread extends Thread{
     private Runnable r;
     private ThreadTaskPool ttp;
+    private final Object taskLock = new Object();
 
     public WorkerThread(ThreadTaskPool ttp){
         this.ttp = ttp;
@@ -13,19 +14,19 @@ public class WorkerThread extends Thread{
     }
 
     public void addTask(Runnable task){
-        synchronized (r){
+        synchronized (taskLock){
             r = task;
-            r.notify();
+            taskLock.notify();
         }
     }
 
     public void run() {
 
         while (true) {
-            synchronized (r) {
+            synchronized (taskLock) {
                 while (r == null) {
                     try {
-                        r.wait();
+                        taskLock.wait();
                     } catch (InterruptedException e) {
                         // ignore
                     }
@@ -36,7 +37,7 @@ public class WorkerThread extends Thread{
             } catch (Exception e) {
                 // ignore
             } finally {
-                synchronized (r){
+                synchronized (taskLock){
                     r = null;
                     ttp.enqueueWorker(this);
                 }
