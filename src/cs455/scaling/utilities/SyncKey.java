@@ -102,7 +102,11 @@ public class SyncKey {
 
     //-----Key Methods
     public SelectionKey interestOps(int ops) throws IOException{
-        return key.interestOps(ops);
+        synchronized (writeLock){
+            synchronized (readLock){
+                return key.interestOps(ops);
+            }
+        }
     }
 
     public boolean isValid(){

@@ -31,6 +31,8 @@ public class Server extends Thread {
 
     private ByteBuffer messageBuffer = ByteBuffer.allocate(10000);
 
+    private SyncLinkedList opNodeList = new SyncLinkedList();
+
     public Server(InetAddress serverAddress, int port, ThreadPoolManager tpm) throws IOException{
         this.tpm = tpm;
         this.serverAddress = serverAddress;
@@ -64,10 +66,36 @@ public class Server extends Thread {
         keyTemp.enqueReadTask();
     }
 
+    public void addOPStateChange(OPNode opn){
+        synchronized (opNodeList){
+            opNodeList.add(opn);
+        }
+    }
+
+    private void checkOPStateChanges() throws IOException {
+        synchronized (opNodeList) {
+            Iterator nodes = opNodeList.iterator();
+            while (nodes.hasNext()) {
+                OPNode node = (OPNode) nodes.next();
+                        node.socket.interestOps(node.ops);
+            }
+        }
+            opNodeList.clear();
+    }
+
+    public void wakeUpSelector(){
+        synchronized (selector){
+            selector.wakeup();
+        }
+    }
+
+
     public void run(){
         while (true){
             try{
                 selector.select();
+
+                checkOPStateChanges();
 
                 Iterator selectedKeys = this.selector.selectedKeys().iterator();
                 while(selectedKeys.hasNext()){
