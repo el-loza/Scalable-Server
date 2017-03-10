@@ -5,7 +5,7 @@ package cs455.scaling.threadpool;
  */
 public class Test2 {
     public static void main(String[] args) {
-        ThreadPoolManager tpm = new ThreadPoolManager(2);
+        ThreadPoolManager tpm = new ThreadPoolManager(10);
         tpm.startWorkers();
         tpm.start();
         tpm.enqueueTask(new Test2.TestTask1());

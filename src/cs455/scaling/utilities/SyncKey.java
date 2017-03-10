@@ -1,5 +1,9 @@
 package cs455.scaling.utilities;
 
+import cs455.scaling.server.Server;
+import cs455.scaling.server.ServerReadTask;
+import cs455.scaling.threadpool.ThreadPoolManager;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -16,21 +20,50 @@ public class SyncKey {
     private final SocketChannel socket;
     private final Lock readLock = new ReentrantLock();
     private final Lock writeLock = new ReentrantLock();
+    private final ThreadPoolManager tpm;
+    private final Server server;
+    private final int messSize = (8 * 1024);
 
-    public SyncKey (SelectionKey key){
+    public SyncKey (SelectionKey key, ThreadPoolManager tpm, Server server){
+        this.tpm = tpm;
         this.key = key;
+        this.server = server;
         socket = (SocketChannel) key.channel();
+    }
+
+    //-----Custom Methods
+    public void enqueReadTask(){
+        if(readLock.tryLock()){
+            try{
+                tpm.enqueueTask(new ServerReadTask(server, this, tpm));
+                //System.out.println("SERVER: Added reading task to queue");
+            } finally {
+                readLock.unlock();
+            }
+        }
     }
 
     //------- Socket Methods--------------
     public int read(ByteBuffer dst) throws IOException{
-        synchronized (readLock){
-            return socket.read(dst);
+        int read = 0;
+        int count = 0;
+        if (readLock.tryLock()){
+            try{
+                //System.out.println("SERVERREADTASK: Reading message");
+                while (count < messSize && read !=-1){
+                    read = socket.read(dst);
+                    count += read;
+                }
+            } finally {
+                readLock.unlock();
+            }
         }
+        return count;
     }
 
     public int write(ByteBuffer src) throws IOException{
         synchronized (writeLock){
+            System.out.println("Attemping to write....");
             return socket.write(src);
         }
     }

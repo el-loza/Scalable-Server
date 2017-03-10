@@ -33,8 +33,13 @@ public class WorkerThread extends Thread{
                 }
             }
             try {
+                //System.out.println("WORKERTHREAD: attempting to run task");
                 r.run();
+                //System.out.println("WORKERTHREAD: WHY ID i get kicked out");
             } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("WORKERTHREAD: This is an error ");
+                e.printStackTrace();
                 // ignore
             } finally {
                 synchronized (taskLock){

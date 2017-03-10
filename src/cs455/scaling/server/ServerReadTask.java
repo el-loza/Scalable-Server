@@ -22,7 +22,8 @@ public class ServerReadTask implements Runnable{
         this.server = server;
         this.key = key;
         this.tpm = tpm;
-        messageBuffer = ByteBuffer.allocate(8000);
+        //messageBuffer = ByteBuffer.allocate(8 *1024);
+        messageBuffer = ByteBuffer.allocate(1024 * 9);
     }
 
     @Override
@@ -30,9 +31,7 @@ public class ServerReadTask implements Runnable{
         int read = 0;
         messageBuffer.clear();
         try{
-            while (messageBuffer.hasRemaining() && read !=-1){
-                read = key.read(messageBuffer);
-            }
+            read = key.read(messageBuffer);
         } catch (IOException e){
             key.close();
             return;
@@ -41,10 +40,15 @@ public class ServerReadTask implements Runnable{
         if (read == -1){
             key.close();
             return;
+        } else if (read != 0){
+            messageBuffer.flip();
+            byte[] arr = new byte[8 * 1024];
+            messageBuffer.get(arr);
+            String hashString = ByteGenerator.SHA1FromBytes(arr);
+            System.out.println("SERVERREADTASK: created hash: " + hashString);
+            tpm.enqueueTask(new ServerWriteTask(server, key, hashString));
         }
-        byte[] arr = new byte[messageBuffer.remaining()];
-        messageBuffer.get(arr);
-        String hashString = ByteGenerator.SHA1FromBytes(arr);
-        tpm.enqueueTask(new ServerWriteTask(server, key, hashString));
+
+
     }
 }

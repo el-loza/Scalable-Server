@@ -39,6 +39,7 @@ public class ThreadTaskPool {
                     e.printStackTrace();
                 }
             }
+            //System.out.println("TPP: worker removed");
             return workers.remove();
         }
     }
@@ -47,6 +48,7 @@ public class ThreadTaskPool {
         synchronized (workers){
             workers.addLast(worker);
             workers.notify();
+            //System.out.println("TPP: Notifying of enqueued worker...");
         }
     }
 
@@ -54,11 +56,13 @@ public class ThreadTaskPool {
         synchronized (tasks){
             while(tasks.isEmpty()){
                 try {
+                    //System.out.println("TPP: Waiting on task...");
                     tasks.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            //System.out.println("TPP: tasked removed");
             return tasks.remove();
         }
     }
@@ -66,6 +70,7 @@ public class ThreadTaskPool {
     public void enqueueTask(Runnable task){
         synchronized (tasks){
             tasks.addLast(task);
+            //System.out.println("TPP: Notifying of enqueued task...");
             tasks.notify();
         }
     }

@@ -29,6 +29,7 @@ public class ThreadPoolManager extends Thread {
             r = ttp.dequeueTask();
             wt = ttp.dequeueWorker();
             wt.addTask(r);
+            //System.out.println("THREADPOOLMANAGER: added task to worker");
 
         }
 

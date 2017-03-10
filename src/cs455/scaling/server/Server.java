@@ -54,12 +54,12 @@ public class Server extends Thread {
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
         socketChannel.register(selector, SelectionKey.OP_READ);
-        keyMap.put(key, new SyncKey(key));
+        keyMap.put(socketChannel.keyFor(selector), new SyncKey(socketChannel.keyFor(selector), tpm, this));
     }
 
     private void read(SelectionKey key) throws IOException{
         SyncKey keyTemp = keyMap.get(key);
-        tpm.enqueueTask(new ServerReadTask(this, keyTemp, tpm));
+        keyTemp.enqueReadTask();
     }
 
     public void run(){
@@ -95,11 +95,15 @@ public class Server extends Thread {
             return;
         }
 
-        int portnum = Integer.getInteger(args[0]);
-        int numThreads = Integer.getInteger(args[1]);
+        int portnum = Integer.parseInt(args[0]);
+        int numThreads = Integer.parseInt(args[1]);
         ThreadPoolManager tpm = new ThreadPoolManager(numThreads);
+        tpm.startWorkers();
+        tpm.start();
         try {
-            Server ss = new Server(InetAddress.getLocalHost(), portnum, tpm);
+            InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+            Server ss = new Server(inetAddress, portnum, tpm);
+            ss.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
