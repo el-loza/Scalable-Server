@@ -101,7 +101,9 @@ public class Server extends Thread {
         tpm.startWorkers();
         tpm.start();
         try {
-            InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+            //InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            System.out.println(inetAddress.toString());
             Server ss = new Server(inetAddress, portnum, tpm);
             ss.start();
         } catch (IOException e) {
