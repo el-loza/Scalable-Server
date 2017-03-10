@@ -1,9 +1,7 @@
 package cs455.scaling.server;
 
-import com.sun.corba.se.impl.orbutil.concurrent.Sync;
 import cs455.scaling.utilities.SyncKey;
 
-import java.nio.channels.SocketChannel;
 
 /**
  * Created by eloza on 3/10/17.
