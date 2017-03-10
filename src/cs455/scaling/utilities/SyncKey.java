@@ -55,7 +55,7 @@ public class SyncKey {
         if (readLock.tryLock()){
             try{
                 //System.out.println("SERVERREADTASK: Reading message");
-                while (count < messSize && read !=-1){
+                while (dst.hasRemaining() && read !=-1){
                     read = socket.read(dst);
                     count += read;
                 }

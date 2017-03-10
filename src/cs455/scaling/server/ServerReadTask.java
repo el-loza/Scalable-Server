@@ -23,8 +23,8 @@ public class ServerReadTask implements Runnable{
         this.server = server;
         this.key = key;
         this.tpm = tpm;
-        //messageBuffer = ByteBuffer.allocate(8 *1024);
-        messageBuffer = ByteBuffer.allocate(1024 * 9);
+        messageBuffer = ByteBuffer.allocate(8 *1024);
+        //messageBuffer = ByteBuffer.allocate(1024 * 9);
     }
 
 
