@@ -41,6 +41,7 @@ public class Server extends Thread {
     private Selector startSelector(InetAddress serverAddress, int port) throws IOException{
         Selector serverSelector = Selector.open();
         serverChannel = ServerSocketChannel.open();
+        serverChannel.socket().setReceiveBufferSize(64*1024);
         serverChannel.configureBlocking(false);
         InetSocketAddress isa = new InetSocketAddress(serverAddress, port);
         serverChannel.socket().bind(isa);
@@ -53,6 +54,7 @@ public class Server extends Thread {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
+        socketChannel.socket().setSendBufferSize(64*1024);
         socketChannel.register(selector, SelectionKey.OP_READ);
         keyMap.put(socketChannel.keyFor(selector), new SyncKey(socketChannel.keyFor(selector), tpm, this));
     }

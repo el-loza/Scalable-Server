@@ -68,6 +68,7 @@ public class SyncKey {
 
     public int write(ByteBuffer src) throws IOException{
         synchronized (writeLock){
+            socket.socket().getInetAddress().toString();
             //System.out.println("Attemping to write....");
             return socket.write(src);
         }
