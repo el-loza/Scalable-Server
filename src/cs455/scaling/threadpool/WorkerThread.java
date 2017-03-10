@@ -6,10 +6,12 @@ package cs455.scaling.threadpool;
 public class WorkerThread extends Thread{
     private Runnable r;
     private ThreadTaskPool ttp;
+    private int name;
     private final Object taskLock = new Object();
 
-    public WorkerThread(ThreadTaskPool ttp){
+    public WorkerThread(ThreadTaskPool ttp, int name){
         this.ttp = ttp;
+        this.name = name;
         r = null;
     }
 

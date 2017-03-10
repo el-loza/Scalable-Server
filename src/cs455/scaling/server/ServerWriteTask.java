@@ -22,13 +22,18 @@ public class ServerWriteTask implements Runnable{
 
     @Override
     public void run() {
+        String socketName = key.getSocketName();
         byte[] messageArray = new String(message).getBytes();
         ByteBuffer messageBuffer = ByteBuffer.wrap(messageArray);
         int result;
         try {
+            System.out.println(socketName + " : Attemping to write");
             result = key.write(messageBuffer);
             if (result == 0 ){
                 System.out.println("Did not send " + message+ " :Send Buffer Full");
+            }
+            else {
+                System.out.println(socketName + " : Sent");
             }
         } catch (IOException e) {
             System.out.println("Could Not Send:" + message);

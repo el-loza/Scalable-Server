@@ -5,6 +5,7 @@ import cs455.scaling.server.ServerReadTask;
 import cs455.scaling.threadpool.ThreadPoolManager;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -41,6 +42,10 @@ public class SyncKey {
                 readLock.unlock();
             }
         }
+    }
+
+    public String getSocketName(){
+        return socket.socket().getInetAddress().toString();
     }
 
     //------- Socket Methods--------------

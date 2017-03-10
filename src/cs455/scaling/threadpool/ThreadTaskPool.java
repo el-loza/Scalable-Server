@@ -16,7 +16,7 @@ public class ThreadTaskPool {
         workers = new LinkedList<WorkerThread>();
         WorkerThread tempThread;
         for (int i = 0; i < numOfThreads; i++) {
-            tempThread = new WorkerThread(this);
+            tempThread = new WorkerThread(this, i);
             workers.push(tempThread);
         }
     }

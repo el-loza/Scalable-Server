@@ -5,6 +5,7 @@ import cs455.scaling.utilities.ByteGenerator;
 import cs455.scaling.utilities.SyncKey;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -26,8 +27,10 @@ public class ServerReadTask implements Runnable{
         messageBuffer = ByteBuffer.allocate(1024 * 9);
     }
 
+
     @Override
     public void run() {
+        String socketName = key.getSocketName();
         int read = 0;
         messageBuffer.clear();
         try{
@@ -45,7 +48,7 @@ public class ServerReadTask implements Runnable{
             byte[] arr = new byte[8 * 1024];
             messageBuffer.get(arr);
             String hashString = ByteGenerator.SHA1FromBytes(arr);
-            System.out.println("SERVERREADTASK: created hash: " + hashString);
+            System.out.println(socketName +" : created hash: " + hashString);
             tpm.enqueueTask(new ServerWriteTask(server, key, hashString));
         }
 
