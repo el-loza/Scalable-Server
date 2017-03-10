@@ -19,41 +19,25 @@ public class ServerReadTask implements Runnable{
     private final SyncKey key;
     private final ThreadPoolManager tpm;
 
-    public ServerReadTask(Server server,  SyncKey key, ThreadPoolManager tpm){
+    public ServerReadTask(Server server,  SyncKey key, ThreadPoolManager tpm, ByteBuffer readBuff){
         this.server = server;
         this.key = key;
         this.tpm = tpm;
-        messageBuffer = ByteBuffer.allocate(8 *1024);
+        messageBuffer = readBuff;
         //messageBuffer = ByteBuffer.allocate(1024 * 9);
     }
 
 
     @Override
     public void run() {
-        String socketName = key.getSocketName();
-        int read = 0;
-        messageBuffer.clear();
-        try{
-            read = key.read(messageBuffer);
-        } catch (IOException e){
-            key.close();
-            return;
-        }
-
-        if (read == -1){
-            key.close();
-            return;
-        } else if (read != 0){
-            messageBuffer.flip();
+            String socketName = key.getSocketName();
+            //messageBuffer.flip();
             byte[] arr = new byte[8 * 1024];
             messageBuffer.get(arr);
             String hashString = ByteGenerator.SHA1FromBytes(arr);
             System.out.println(socketName +" : created hash: " + hashString);
-            server.addOPStateChange(new OPNode(key, SelectionKey.OP_WRITE));
+            //server.addOPStateChange(new OPNode(key, SelectionKey.OP_WRITE));
             tpm.enqueueTask(new ServerWriteTask(server, key, hashString));
-            server.wakeUpSelector();
-        }
-
-
+            //server.wakeUpSelector();
     }
 }

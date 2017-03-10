@@ -39,12 +39,6 @@ public class ServerWriteTask implements Runnable{
         } catch (IOException e) {
             System.out.println("Could Not Send:" + message);
             e.printStackTrace();
-        } finally {
-            try {
-                key.interestOps(SelectionKey.OP_READ);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

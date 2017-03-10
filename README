@@ -1,0 +1,2 @@
+This Implementation does not scale well. I have been trying diffrent tecniques with no success. If tested with 10-20
+Machines but alittle unpredictable at higher scales. I think my problem is a deadlock.

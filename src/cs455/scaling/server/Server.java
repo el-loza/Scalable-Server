@@ -29,9 +29,9 @@ public class Server extends Thread {
 
     private final HashMap<SelectionKey, SyncKey> keyMap = new HashMap<SelectionKey, SyncKey>();
 
-    private ByteBuffer messageBuffer = ByteBuffer.allocate(10000);
+    //private ByteBuffer messageBuffer = ByteBuffer.allocate(10000);
 
-    private SyncLinkedList opNodeList = new SyncLinkedList();
+    //private SyncLinkedList opNodeList = new SyncLinkedList();
 
     public Server(InetAddress serverAddress, int port, ThreadPoolManager tpm) throws IOException{
         this.tpm = tpm;
@@ -57,37 +57,38 @@ public class Server extends Thread {
         SocketChannel socketChannel = serverSocketChannel.accept();
         socketChannel.configureBlocking(false);
         socketChannel.socket().setSendBufferSize(128*1024);
-        socketChannel.register(selector, SelectionKey.OP_READ);
+        ByteBuffer bufferTemp = ByteBuffer.allocate(8 *1024);
+        socketChannel.register(selector, SelectionKey.OP_READ, bufferTemp);
         keyMap.put(socketChannel.keyFor(selector), new SyncKey(socketChannel.keyFor(selector), tpm, this));
     }
 
     private void read(SelectionKey key) throws IOException{
         SyncKey keyTemp = keyMap.get(key);
-        keyTemp.enqueReadTask();
+        keyTemp.read();
     }
 
-    public void addOPStateChange(OPNode opn){
-        synchronized (opNodeList){
-            opNodeList.add(opn);
-        }
-    }
+//    public void addOPStateChange(OPNode opn){
+//        synchronized (opNodeList){
+//            opNodeList.add(opn);
+//        }
+//    }
 
-    private void checkOPStateChanges() throws IOException {
-        synchronized (opNodeList) {
-            Iterator nodes = opNodeList.iterator();
-            while (nodes.hasNext()) {
-                OPNode node = (OPNode) nodes.next();
-                        node.socket.interestOps(node.ops);
-            }
-        }
-            opNodeList.clear();
-    }
+//    private void checkOPStateChanges() throws IOException {
+//        synchronized (opNodeList) {
+//            Iterator nodes = opNodeList.iterator();
+//            while (nodes.hasNext()) {
+//                OPNode node = (OPNode) nodes.next();
+//                        node.socket.interestOps(node.ops);
+//            }
+//        }
+//            opNodeList.clear();
+//    }
 
-    public void wakeUpSelector(){
-        synchronized (selector){
-            selector.wakeup();
-        }
-    }
+//    public void wakeUpSelector(){
+//        synchronized (selector){
+//            selector.wakeup();
+//        }
+//    }
 
 
     public void run(){
@@ -95,7 +96,7 @@ public class Server extends Thread {
             try{
                 selector.select();
 
-                checkOPStateChanges();
+                //checkOPStateChanges();
 
                 Iterator selectedKeys = this.selector.selectedKeys().iterator();
                 while(selectedKeys.hasNext()){

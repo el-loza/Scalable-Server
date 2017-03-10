@@ -33,15 +33,21 @@ public class SyncKey {
     }
 
     //-----Custom Methods
-    public void enqueReadTask(){
-        if(readLock.tryLock()){
-            try{
-                tpm.enqueueTask(new ServerReadTask(server, this, tpm));
-                //System.out.println("SERVER: Added reading task to queue");
-            } finally {
-                readLock.unlock();
-            }
-        }
+
+    public static ByteBuffer deepCopy(ByteBuffer original) {
+        original.flip();
+        ByteBuffer clone = ByteBuffer.allocate(original.remaining());
+        original.rewind();
+        clone.put(original);
+        original.rewind();
+        clone.flip();
+        return clone;
+    }
+
+    public void enqueReadTask(ByteBuffer rBuffer){
+        tpm.enqueueTask(new ServerReadTask(server, this, tpm, rBuffer));
+        //System.out.println("SERVER: Added reading task to queue");
+
     }
 
     public String getSocketName(){
@@ -49,16 +55,24 @@ public class SyncKey {
     }
 
     //------- Socket Methods--------------
-    public int read(ByteBuffer dst) throws IOException{
+    public int read() throws IOException{
         int read = 0;
         int count = 0;
+        ByteBuffer readBuffer = (ByteBuffer) key.attachment();
+        readBuffer.clear();
         if (readLock.tryLock()){
             try{
                 //System.out.println("SERVERREADTASK: Reading message");
-                while (dst.hasRemaining() && read !=-1){
-                    read = socket.read(dst);
+                while (readBuffer.hasRemaining() && read !=-1){
+                    read = socket.read(readBuffer);
                     count += read;
                 }
+
+                if (count == -1){
+                    close();
+                    return count;
+                } else if (read != 0){
+                    enqueReadTask(deepCopy(readBuffer));                }
             } finally {
                 readLock.unlock();
             }
@@ -68,7 +82,7 @@ public class SyncKey {
 
     public int write(ByteBuffer src) throws IOException{
         synchronized (writeLock){
-            socket.socket().getInetAddress().toString();
+            //socket.socket().getInetAddress().toString();
             //System.out.println("Attemping to write....");
             return socket.write(src);
         }
