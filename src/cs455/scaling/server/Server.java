@@ -24,6 +24,7 @@ public class Server extends Thread {
     private int port;
     private ServerSocketChannel serverChannel;
     private Selector selector;
+    private ServerStats ss;
 
     private final ThreadPoolManager tpm;
 
@@ -33,7 +34,8 @@ public class Server extends Thread {
 
     //private SyncLinkedList opNodeList = new SyncLinkedList();
 
-    public Server(InetAddress serverAddress, int port, ThreadPoolManager tpm) throws IOException{
+    public Server(InetAddress serverAddress, int port, ThreadPoolManager tpm, ServerStats ss) throws IOException{
+        this.ss = ss;
         this.tpm = tpm;
         this.serverAddress = serverAddress;
         this.port = port;
@@ -60,11 +62,12 @@ public class Server extends Thread {
         ByteBuffer bufferTemp = ByteBuffer.allocate(8 *1024);
         socketChannel.register(selector, SelectionKey.OP_READ, bufferTemp);
         keyMap.put(socketChannel.keyFor(selector), new SyncKey(socketChannel.keyFor(selector), tpm, this));
+        ss.increaseConnections();
     }
 
     private void read(SelectionKey key) throws IOException{
         SyncKey keyTemp = keyMap.get(key);
-        keyTemp.read();
+        keyTemp.read(ss);
     }
 
 //    public void addOPStateChange(OPNode opn){
@@ -125,6 +128,8 @@ public class Server extends Thread {
             System.out.println("ERROR: Please follow this format, java cs455.scaling.server.Server portnum thread-pool-size");
             return;
         }
+        ServerStats ss = new ServerStats();
+        ServerPrintStats sps = new ServerPrintStats(ss, 5);
 
         int portnum = Integer.parseInt(args[0]);
         int numThreads = Integer.parseInt(args[1]);
@@ -135,8 +140,10 @@ public class Server extends Thread {
             //InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
             InetAddress inetAddress = InetAddress.getLocalHost();
             System.out.println(inetAddress.toString());
-            Server ss = new Server(inetAddress, portnum, tpm);
-            ss.start();
+            Server s = new Server(inetAddress, portnum, tpm, ss);
+            s.start();
+            Timer timer = new Timer();
+            timer.schedule(sps, 0, 5000);
         } catch (IOException e) {
             e.printStackTrace();
         }

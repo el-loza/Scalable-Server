@@ -2,6 +2,7 @@ package cs455.scaling.utilities;
 
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ServerReadTask;
+import cs455.scaling.server.ServerStats;
 import cs455.scaling.threadpool.ThreadPoolManager;
 
 import java.io.IOException;
@@ -44,8 +45,8 @@ public class SyncKey {
         return clone;
     }
 
-    public void enqueReadTask(ByteBuffer rBuffer){
-        tpm.enqueueTask(new ServerReadTask(server, this, tpm, rBuffer));
+    public void enqueReadTask(ByteBuffer rBuffer, ServerStats ss){
+        tpm.enqueueTask(new ServerReadTask(server, this, tpm, rBuffer, ss));
         //System.out.println("SERVER: Added reading task to queue");
 
     }
@@ -55,7 +56,7 @@ public class SyncKey {
     }
 
     //------- Socket Methods--------------
-    public int read() throws IOException{
+    public int read(ServerStats ss) throws IOException{
         int read = 0;
         int count = 0;
         ByteBuffer readBuffer = (ByteBuffer) key.attachment();
@@ -72,7 +73,7 @@ public class SyncKey {
                     close();
                     return count;
                 } else if (read != 0){
-                    enqueReadTask(deepCopy(readBuffer));                }
+                    enqueReadTask(deepCopy(readBuffer), ss);                }
             } finally {
                 readLock.unlock();
             }
