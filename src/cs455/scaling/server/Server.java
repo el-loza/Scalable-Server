@@ -137,8 +137,8 @@ public class Server extends Thread {
         tpm.startWorkers();
         tpm.start();
         try {
-            //InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
-            InetAddress inetAddress = InetAddress.getLocalHost();
+            InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+            //InetAddress inetAddress = InetAddress.getLocalHost();
             System.out.println(inetAddress.toString());
             Server s = new Server(inetAddress, portnum, tpm, ss);
             s.start();

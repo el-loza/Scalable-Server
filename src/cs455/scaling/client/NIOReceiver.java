@@ -1,6 +1,6 @@
 package cs455.scaling.client;
 
-import cs455.scaling.test.ChangeRequest;
+//import cs455.scaling.test.ChangeRequest;
 import cs455.scaling.utilities.SyncKey;
 import cs455.scaling.utilities.SyncLinkedList;
 
